@@ -4,17 +4,17 @@ CREATE DATABASE EmployeeTracker_db;
 USE EmployeeTracker_db;
 
 CREATE TABLE department (
-    id INT,
+    department_id INT,
     name VARCHAR(30) NOT NULL,
-    PRIMARY KEY(id)
+    PRIMARY KEY(department_id)
 );
 
 CREATE TABLE role (
-    id INT,
+    role_id INT,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL(10,2),
     department_id INT,
-    PRIMARY KEY(id)
+    PRIMARY KEY(role_id)
 );
 
 CREATE TABLE employee (
@@ -26,10 +26,10 @@ CREATE TABLE employee (
     PRIMARY KEY(id)
 );
 
-INSERT INTO department (id, name)
+INSERT INTO department (department_id, name)
 VALUES (10, "Accounting"), (11, "Engineering"), (12, "Quality"), (13, "Production"), (14, "Customer Service");
 
-INSERT INTO role (id, title, salary, department_id)
+INSERT INTO role (role_id, title, salary, department_id)
 VALUES (20, "Accounting Clerk", 60000, 10), (21, "Mechanical Engineer", 80000, 11), (22, "Quality Inspector", 50000, 12), 
 (23, "Production Assembler", 40000, 13), (24, "CS Coordinator", 45000, 14);
 
