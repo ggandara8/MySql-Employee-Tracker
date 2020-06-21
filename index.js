@@ -5,7 +5,7 @@ const Employee = require("./employee");
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-const joined = "SELECT e.id, e.first_name, e.last_name, r.title, department.department_name, r.salary, CONCAT(m.first_name, ' ', m.last_name) as manager_name FROM employee e INNER JOIN role r ON e.role_id = r.role_id INNER JOIN department ON department.department_id = r.department_id LEFT JOIN employee m ON e.manager_id = m.id";
+const joined = "SELECT e.id, e.first_name, e.last_name, r.title, department.name, r.salary, CONCAT(m.first_name, ' ', m.last_name) as manager_name FROM employee e INNER JOIN role r ON e.role_id = r.role_id INNER JOIN department ON department.department_id = r.department_id LEFT JOIN employee m ON e.manager_id = m.id";
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -23,17 +23,17 @@ var connection = mysql.createConnection({
   
 connection.connect(function(err) {
     if (err) throw err;
-    afterConnection();
+    EmployeeActions();
 });
   
-function afterConnection() {
+function EmployeeActions() {
 
     inquirer.prompt(
         {
             name: "options",
             type: "list",
             message: "What would you like to do?",
-            choices: ["Add employee", "View employees", "Update employees"]
+            choices: ["Add employee", "View employees", "Update employees", "Not adding more changes"]
         }
     ).then(function(answer){
         
@@ -45,7 +45,8 @@ function afterConnection() {
         }
         if (answer.options === "Update employee"){
             UpdateEmployee();
-        } else {
+        } 
+        if (answer.options === "Not adding more changes") {
             connection.end();
         }
     });
@@ -56,7 +57,9 @@ function ViewEmployees(){
     connection.query(joined, function(err, res) {
         if (err) throw err;
         console.table(res);
+        EmployeeActions();
     });
+    
 }
 
 function AddEmployee(){
@@ -73,19 +76,27 @@ function AddEmployee(){
         },
         {
             name: "role",
-            type: "input",
+            type: "list",
             message: "What is the role of the employee?",
             choices: ["Accounting Clerk", "Mechanical Engineer", "Quality Inspector", "Production Assembler", "CS Coordinator"]
         }
     ]).then(function(answers){
-    connection.query("INSERT INTO employee SET ?", {}, function(err, results){
-        
-        console.log(results);
+        if(answers.role === "Accounting Clerk"){
+            var roleid = 20;
+        }
+    connection.query("INSERT INTO employee SET ?", 
+    { 
+        first_name: answers.first_name,
+        last_name: answers.last_name,
+        role_id: roleid
+    }, function(err){
+        if(err) throw err;
+        EmployeeActions();
     });
+
     });
-    connection.end();
 }
 
-function UpdateEmployee(){
-
+function UpdateEmployeeRoles(){
+    
 }
