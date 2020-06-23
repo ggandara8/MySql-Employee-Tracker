@@ -33,11 +33,12 @@ VALUES ("Accounting"), ("Engineering"), ("Quality"), ("Production"), ("Customer 
 
 INSERT INTO role (title, salary, department_id)
 VALUES ("Accounting Clerk", 60000, 10), ("Mechanical Engineer", 80000, 11), ("Quality Inspector", 50000, 12), 
-("Production Assembler", 40000, 13), ("CS Coordinator", 45000, 14);
+("Production Assembler", 40000, 13), ("CS Coordinator", 45000, 14), ("Accounting Manager", 70000, 10), ("Engineering Manager", 95000, 11),
+("Quality Manager", 70000, 12), ("Production Manager", 70000, 13), ("CS Manager", 70000, 14);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("John", "Wick", 21, 7), ("Jojo", "Sanchez", 20, 6), ("Jessica", "Willis", 22, 20), ("Jerry", "Star", 23, 40), ("Denisse", "Cabrera", 24, 34),
-("Missy", "Taylor", 20, 76), ("Jack", "Bauer", 21, 26); 
+VALUES ("John", "Wick", 21, 7), ("Jojo", "Sanchez", 20, 6), ("Jessica", "Willis", 22, 8), ("Jerry", "Star", 23, 9), ("Denisse", "Cabrera", 24, 10),
+("Missy", "Taylor", 25, 76), ("Jack", "Bauer", 26, 26), ("Sam", "Stevenson", 27, 88), ("Nick", "Miller", 28, 89), ("Winston", "Bishop", 29, 90); 
 
 
 
