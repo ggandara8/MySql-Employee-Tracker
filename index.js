@@ -11,8 +11,6 @@ var currentMan = ["Missy Taylor", "Jack Bauer", "Sam Stevenson", "Nick Miller", 
 var currentRoles =["Accounting Clerk", "Mechanical Engineer", "Quality Inspector", "Production Assembler",
  "CS Coordinator", "Accounting Manager", "Engineering Manager", "Quality Manager", "Production Manager", "CS Manager"];
 
-var currentSalary = [60000, 80000, 50000, 40000, 45000, 70000, 95000, 70000, 70000, 70000];
-
 var currentDept = ["Accounting", "Engineering", "Quality", "Production", "Customer Service"];
 
 var connection = mysql.createConnection({
@@ -204,8 +202,6 @@ function AddRole(){
         var addSalary = answers.salary;
 
         currentRoles.push(addTitle);
-        currentSalary.push(addSalary);
-
         connection.query("SELECT department_id from department WHERE ?", {name: answers.department}, function(err, res){
             if(err) throw err;
             var deptId = res[0].department_id;
@@ -224,8 +220,10 @@ function AddRole(){
 
 // Update Employees 
 function UpdateEmployeeRoles(){
-    var employees = "SELECT first_name, last_name FROM employeetracker_db.employee";
-    // var updateRole = "SELECT role_id FROM employee WHERE id =" +  "UPDATE employee SET role_id = 22 WHERE id =" + ;
+    var Selectroleid = "SELECT role_id FROM role WHERE title ?";
+    var concat = "CONCAT(first_name, ' ', last_name)";
+    var SelectFullname = `SELECT CONCAT(first_name, ' ', last_name) as full_name FROM employee WHERE ${concat} ?`;
+    // var updateRole = `UPDATE employee SET role_id = ${} WHERE ${} ?`;
     inquirer.prompt([
         {
             name: "employee_update",
@@ -249,6 +247,9 @@ function UpdateEmployeeRoles(){
             
         }
     ]).then(function(answers){
-        connection.query("")
+        connection.query(`SELECT CONCAT(first_name, ' ', last_name) as full_name FROM employee WHERE ${concat}?`, answers.employee_update, function(err,res){
+            if(err) throw err;
+            EmployeeActions();
+        });
     });
 }
