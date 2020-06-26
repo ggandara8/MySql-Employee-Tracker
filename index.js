@@ -3,15 +3,37 @@ const inquirer = require("inquirer");
 const cTable = require('console.table');
 const joined = "SELECT e.id, e.first_name, e.last_name, r.title, department.name, r.salary, CONCAT(m.first_name, ' ', m.last_name) as manager_name FROM employee e INNER JOIN role r ON e.role_id = r.role_id INNER JOIN department ON department.department_id = r.department_id LEFT JOIN employee m ON e.manager_id = m.id";
 
-var currentEmpl = ["John Wick", "Jojo Sanchez", "Jessica Willis", 
-"Jerry Star", "Denisse Cabrera"];
+var currentEmpl = [];
+function EmployeeArr(){
+    connection.query("SELECT CONCAT(first_name, ' ', last_name) as full_name FROM employee", function(err, res){
+        if(err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            currentEmpl.push(res[i].full_name)
+        }
+    });
+}
 
-var currentMan = ["Missy Taylor", "Jack Bauer", "Sam Stevenson", "Nick Miller", "Winston Bishop"];
+var currentRoles =[];
+function RoleArr(){
+    connection.query("SELECT title FROM role", function(err, res){
+        if(err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            currentRoles.push(res[i].title)
+        }
+    });
+}
 
-var currentRoles =["Accounting Clerk", "Mechanical Engineer", "Quality Inspector", "Production Assembler",
- "CS Coordinator", "Accounting Manager", "Engineering Manager", "Quality Manager", "Production Manager", "CS Manager"];
 
-var currentDept = ["Accounting", "Engineering", "Quality", "Production", "Customer Service"];
+var currentDept = [];
+function deptArr(){
+    connection.query("SELECT name FROM department", function(err, res){
+        if(err) throw err;
+        for (let i = 0; i < res.length; i++) {
+            currentDept.push(res[i].name)
+        }
+    });
+}
+
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -31,6 +53,9 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
     EmployeeActions();
+    deptArr();
+    RoleArr();
+    EmployeeArr();
 });
 
 //Start
@@ -115,40 +140,33 @@ function AddEmployee(){
             name: "role",
             type: "list",
             message: "What is the role of the employee?",
-            choices: () => {
-                for(var i=0; i < currentRoles.length; i++){
-                    return currentRoles;
-                }
-            }
+            choices: currentRoles
         },
         {
             name: "manager",
             type: "list",
             message: "Who is the manager of the employee?",
-            choices: () => {
-                for(var i=0; i < currentMan.length; i++){
-                    return currentMan;
-                }
-            }
+            choices: currentEmpl
         }
     ]).then(function(answers){
-        var addnames = answers.first_name + " " + answers.last_name;
-
-        currentEmpl.push(addnames);
     connection.query("SELECT role_id from role WHERE ?", {title: answers.role},function(err, res){
         if(err) throw err;
         var roleId = res[0].role_id;
-      
+
+    connection.query("SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?", answers.manager, function(err, res){
+        if(err) throw err;
+        var managerId = res[0].id; 
     connection.query("INSERT INTO employee SET ?", 
     { 
         first_name: answers.first_name,
         last_name: answers.last_name,
         role_id: roleId,
-        // manager_id: managerId
+        manager_id: managerId
     }, function(err){
         if(err) throw err;
         EmployeeActions();
-    });  
+    });
+    });   
     }); 
     });
 }
@@ -191,17 +209,9 @@ function AddRole(){
             name: "department",
             type: "list",
             message: "In what department will this role belong?",
-            choices: () => {
-                for(var i=0; i < currentDept.length; i++){
-                    return currentDept;
-                }
-            }
+            choices: currentDept
         }
     ]).then(function(answers){
-        var addTitle = answers.title;
-        var addSalary = answers.salary;
-
-        currentRoles.push(addTitle);
         connection.query("SELECT department_id from department WHERE ?", {name: answers.department}, function(err, res){
             if(err) throw err;
             var deptId = res[0].department_id;
@@ -220,36 +230,39 @@ function AddRole(){
 
 // Update Employees 
 function UpdateEmployeeRoles(){
-    var Selectroleid = "SELECT role_id FROM role WHERE title ?";
-    var concat = "CONCAT(first_name, ' ', last_name)";
-    var SelectFullname = `SELECT CONCAT(first_name, ' ', last_name) as full_name FROM employee WHERE ${concat} ?`;
-    // var updateRole = `UPDATE employee SET role_id = ${} WHERE ${} ?`;
     inquirer.prompt([
         {
             name: "employee_update",
             type: "list",
             message: "Which employee do you want to update the role?",
-            choices: () => {
-                for(var i=0; i < currentEmpl.length; i++){
-                    return currentEmpl;
-                }
-            }
+            choices: currentEmpl
         },
         {
             name: "role_update",
             type:"list",
             message: "What is the new role of the employee?",
-            choices: () => {
-                for(var i=0; i < currentRoles.length; i++){
-                    return currentRoles;
-                }
-            }
+            choices: currentRoles
             
+        },
+        {
+            name: "manager_update",
+            type: "list",
+            message: "Who is the new manager of the employee?",
+            choices: currentEmpl
         }
     ]).then(function(answers){
-        connection.query(`SELECT CONCAT(first_name, ' ', last_name) as full_name FROM employee WHERE ${concat}?`, answers.employee_update, function(err,res){
+        connection.query("SELECT role_id FROM role WHERE ?", {title: answers.role_update},function(err, res){
             if(err) throw err;
-            EmployeeActions();
+            var roleID = res[0].role_id;
+
+            connection.query("SELECT id FROM employee WHERE CONCAT(first_name, ' ', last_name) = ?", answers.manager_update, function(err, res){
+                if(err) throw err;
+                var newManager = res[0].id;
+            connection.query(`UPDATE employee SET role_id = ${roleID}, manager_id = ${newManager} WHERE CONCAT(first_name, ' ', last_name) = ?`, answers.employee_update, function(err){
+                if(err) throw err;
+                EmployeeActions();
+            });
+            });
         });
     });
 }
