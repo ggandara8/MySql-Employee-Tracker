@@ -233,6 +233,8 @@ function AddRole(){
 
 // Update Employees 
 function UpdateEmployeeRoles(){
+    // currentEmpl = [];
+    EmployeeArr();
     inquirer.prompt([
         {
             name: "employee_update",
