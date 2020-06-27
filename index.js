@@ -5,6 +5,7 @@ const joined = "SELECT e.id, e.first_name, e.last_name, r.title, department.name
 
 var currentEmpl = [];
 function EmployeeArr(){
+    // currentEmpl = [];
     connection.query("SELECT CONCAT(first_name, ' ', last_name) as full_name FROM employee", function(err, res){
         if(err) throw err;
         for (let i = 0; i < res.length; i++) {
@@ -15,6 +16,7 @@ function EmployeeArr(){
 
 var currentRoles =[];
 function RoleArr(){
+    // currentRoles =[];
     connection.query("SELECT title FROM role", function(err, res){
         if(err) throw err;
         for (let i = 0; i < res.length; i++) {
@@ -26,6 +28,7 @@ function RoleArr(){
 
 var currentDept = [];
 function deptArr(){
+    // currentDept = [];
     connection.query("SELECT name FROM department", function(err, res){
         if(err) throw err;
         for (let i = 0; i < res.length; i++) {
@@ -217,8 +220,8 @@ function AddRole(){
             var deptId = res[0].department_id;
 
             connection.query("INSERT INTO role SET ?", {
-                title: addTitle,
-                salary:addSalary,
+                title: answers.title,
+                salary:answers.salary,
                 department_id: deptId 
             }, function(err){
                 if(err) throw err;
